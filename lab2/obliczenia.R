@@ -3,6 +3,7 @@ s2 <- read.csv("lab2/SERIA2.txt", sep = "\t", dec = ",")
 
 library(dplyr)
 library(ggplot2)
+library(latex2exp)
 
 transform <- function(s) {
   s |>
@@ -42,3 +43,22 @@ s1 |>
          
   ) |>
   View()
+
+e <- 1.602176634*10^(-19)
+me <- 9.10938291*10^(-32)
+
+s1 |>
+  ggplot(aes(x = sqrt(UH), y = Ia)) +
+  geom_line() +
+  labs(
+    y = TeX("$ I_a$ $(\\mu A)$"),
+    x = TeX("$\\sqrt{U_h}$ $(\\sqrt{V})$"),
+    title = "Wykres zależności prądu anodowego\nod pierwiastku napięcia hamującego"
+  ) +
+  theme(title = element_text(family = "ArialMT"))
+
+ggsave("lab2/task4_plot.pdf", device = cairo_pdf,
+       width = 10, height = 6)
+  # geom_line(data = s2, aes(x = sqrt(UH), y = Ia))
+  # geom_smooth()
+

@@ -57,6 +57,7 @@ me <- 9.10938291*10^(-32)
 s1 |>
   ggplot(aes(x = sqrt(UH), y = Ia)) +
   geom_line() +
+  geom_point() +
   labs(
     y = TeX("$ I_a$ $(\\mu A)$"),
     x = TeX("$\\sqrt{U_H}$ $(\\sqrt{V})$"),

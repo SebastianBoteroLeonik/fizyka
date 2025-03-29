@@ -47,19 +47,35 @@ library(ggplot2)
 library(tidyr)
 
 df <- read.csv2("lab3/Pomiary.csv")
-df |>
+plot_df <- df |>
   mutate(no_in_series = 1:dim(df)[1]) |>
   pivot_longer(-no_in_series, names_to = "series") |>
   mutate(series = substring(series, 2)) |>
+  filter(!is.na(value))
+plot_df |>
   ggplot(aes(y = no_in_series, x = value, colour = series)) +
   geom_point() +
   geom_smooth(method = "lm") +
   geom_errorbarh(aes(xmin = value - 0.1, xmax = value + 0.1), height = 0) +
   labs(
     y = "numer porządkowy pomiaru w serii",
-    x = "zmierzona wartość (cm)",
-    colour = "Seria (wg.\nczęstotliwości w Hz)"
+    x = "zmierzona wartość (cm)"
+  ) + 
+  theme(
+    legend.position = "none"
+  ) +
+  geom_label(
+    data = (
+      plot_df |>
+        group_by(series) |> 
+        summarise(last = last(value), last_no = last(no_in_series))
+    ),
+    aes(x = last, y = last_no, label = series),
+    nudge_x = 1.5
   )
+
+ggsave("lab3/wykres.pdf", device = cairo_pdf,
+       width = 10, height = 6)
 
 # Wyliczenia ze wzorów 4-6
 

@@ -53,16 +53,18 @@ plot_df <- df |>
   mutate(series = substring(series, 2)) |>
   filter(!is.na(value))
 plot_df |>
-  ggplot(aes(y = no_in_series, x = value, colour = series)) +
+  ggplot(aes(y = no_in_series, x = value, group = series)) +
   geom_point() +
-  geom_smooth(method = "lm") +
+  geom_smooth(method = "lm", colour = "black") +
   geom_errorbarh(aes(xmin = value - 0.1, xmax = value + 0.1), height = 0) +
   labs(
     y = "numer porządkowy pomiaru w serii",
     x = "zmierzona wartość (cm)"
   ) + 
   theme(
-    legend.position = "none"
+    legend.position = "none",
+    panel.background = element_blank(),
+    panel.grid = element_line(colour = "black")
   ) +
   geom_label(
     data = (
@@ -70,7 +72,7 @@ plot_df |>
         group_by(series) |> 
         summarise(last = last(value), last_no = last(no_in_series))
     ),
-    aes(x = last, y = last_no, label = series),
+    aes(x = last, y = last_no, label = paste(series, "Hz")),
     nudge_x = 1.5
   )
 

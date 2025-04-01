@@ -46,11 +46,49 @@ library(dplyr)
 library(ggplot2)
 library(tidyr)
 
+round_uncertainty <- function(val, uncer) {
+  round(val, -floor(log10(uncer)) + 1)
+}
+
 df <- read.csv2("lab3/Pomiary.csv")
+# Wyliczenia ze wzorów 4-6
+
+freqs_df <- data_frame(series_no = 1:length(df),
+           freq = as.numeric(substring(colnames(df), 2))) |>
+  mutate(
+    period = round(1e6/(freq)),
+         freq = 1e6/period,
+         range = ifelse(freq<6000,
+                        50,
+                        20),
+         period_uncertainty = sqrt(2*(range/(5*sqrt(3)))^2),
+  ) |>
+  select(-freq, freq) |>
+  mutate(
+    freq_uncertainty = 1e6*period_uncertainty/(period^2),
+    freq_uncertainty = round_uncertainty(freq_uncertainty, freq_uncertainty ),
+    freq = round_uncertainty(freq, freq_uncertainty )
+  )
+# mutate(podz = period/range)
+write.table(freqs_df, "lab3/okresy_i_czest.txt",
+            col.names = c("seria","Ts","z(Ts)","u(Ts)","f","u(f)"),
+            quote = FALSE, dec = ",", sep = "\t", row.names = FALSE)
+
+colnames(df) <- freqs_df$freq
+
+df |>
+  mutate(no_in_series = 1:dim(df)[1], .before = 1) |>
+  # View()
+  write.table("lab3/odczyty_x.txt",
+              col.names = c("Lp","s1","s2","s3","s4","s5","s6","s7","s8","s9"),
+              quote = FALSE, dec = ",", sep = "\t", row.names = FALSE,
+              na = "")
+  
+# Wykres
 plot_df <- df |>
   mutate(no_in_series = 1:dim(df)[1]) |>
   pivot_longer(-no_in_series, names_to = "series") |>
-  mutate(series = substring(series, 2)) |>
+  # mutate(series = substring(series, 2)) |>
   filter(!is.na(value))
 plot_df |>
   ggplot(aes(y = no_in_series, x = value, group = series)) +
@@ -78,32 +116,3 @@ plot_df |>
 
 ggsave("lab3/wykres.pdf", device = cairo_pdf,
        width = 10, height = 6)
-
-# Wyliczenia ze wzorów 4-6
-
-data_frame(series_no = 1:length(df),
-           freq = as.numeric(substring(colnames(df), 2))) |>
-  mutate(
-    period = round(1e6/(freq)),
-         freq = 1e6/period,
-         range = ifelse(freq<6000,
-                        50,
-                        20),
-         period_uncertainty = sqrt(2*(range/(5*sqrt(3)))^2),
-  ) |>
-  select(-freq, freq) |>
-  mutate(
-    freq_uncertainty = 1e6*period_uncertainty/(period^2)
-  ) |>
-  # mutate(podz = period/range)
-  write.table("lab3/okresy_i_czest.txt",
-              col.names = c("seria","Ts","z(Ts)","u(Ts)","f","u(f)"),
-              quote = FALSE, dec = ",", sep = "\t", row.names = FALSE)
-
-df |>
-  mutate(no_in_series = 1:dim(df)[1], .before = 1) |>
-  write.table("lab3/odczyty_x.txt",
-              col.names = c("Lp","s1","s2","s3","s4","s5","s6","s7","s8","s9"),
-              quote = FALSE, dec = ",", sep = "\t", row.names = FALSE,
-              na = "")
-  

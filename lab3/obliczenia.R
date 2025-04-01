@@ -77,6 +77,7 @@ write.table(freqs_df, "lab3/okresy_i_czest.txt",
 colnames(df) <- freqs_df$freq
 
 df |>
+  mutate_all((\(x) if_else(!is.na(x), paste(x, "cm"), NA))) |>
   mutate(no_in_series = 1:dim(df)[1], .before = 1) |>
   # View()
   write.table("lab3/odczyty_x.txt",

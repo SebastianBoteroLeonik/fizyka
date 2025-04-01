@@ -78,3 +78,29 @@ kappas <- c(1.401161, 1.400417, 1.415298, 1.404684, 1.461697, 1.456019,
 kappa <- mean(kappas)
 err = sd(kappas)*sqrt(1/9)
 kappa + 3*sd(kappas)
+
+calc_u_kappa <- function(uf, first_obv, last_obv, num_obv, f, ul = 0.16, t = 293, ut=0.013){
+  M = 4.81 * 1e-26
+  k = 1.3806 * 1e-23
+  #cat(
+    sqrt(
+      (2*f*(2*(1/100*(last_obv - first_obv)/num_obv))^2*M/(k*t)* uf)^2 +
+        (2*(2*(1/100*(last_obv - first_obv)/num_obv))*f^2*M/(k*t)* 1/100*ul)^2 +
+        (-(2*(1/100*(last_obv - first_obv)/num_obv))^2*f^2*M/(k*t^2)* ut)^2
+      )
+    #)
+  
+}
+
+
+u_kappas <- c(
+  calc_u_kappa(130,0.4,47.6,11,4000),
+  calc_u_kappa(170,2.9,48.2,12,4550),
+  calc_u_kappa(200,0,48.3,14,5000),
+  calc_u_kappa(250,1.6,48,15,5560),
+  calc_u_kappa(120,1.5,47.5,16,6100),
+  calc_u_kappa(140,1.4,49.9,18,6490),
+  calc_u_kappa(160,0.5,48,19,7040),
+  calc_u_kappa(190,1.2,49.8,21,7580),
+  calc_u_kappa(210,0.2,48.4,22,8060)
+  )

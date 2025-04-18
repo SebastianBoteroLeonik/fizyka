@@ -100,3 +100,14 @@ bind_rows(
 ggsave("lab6/zestawienie.pdf", device = cairo_pdf,
        width = 10, height = 6)
 
+linreg_and_uncertainty <- function(df) {
+reg <- lm(df$lnN ~ df$x)
+cf <- -reg$coefficients[2]
+u_cf <- sqrt(diag(vcov(reg)))[2]
+cat("coefficient:", round_uncertainty(cf, u_cf), "\n")
+cat("uncertainty:", round_uncertainty(u_cf, u_cf), "\n")
+}
+
+linreg_and_uncertainty(proc_df_cu)
+linreg_and_uncertainty(proc_df_pb)
+linreg_and_uncertainty(proc_df_al)

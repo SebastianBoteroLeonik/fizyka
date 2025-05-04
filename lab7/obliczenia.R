@@ -20,7 +20,7 @@ cat("coefficient:", round_uncertainty(cf, u_cf), "\n")
 cat("uncertainty:", round_uncertainty(u_cf, u_cf), "\n")
 }
 
-df_zal <- read.csv2("lab7/zalamanie.csv")
+df_zal <- read.csv2("zalamanie.csv")
 df_zal_proc <- df_zal |>
   mutate(
     lp = 1:dim(df_zal)[1],
@@ -45,7 +45,7 @@ df_zal_proc <- df_zal |>
 
 df_zal_proc |>
   select(-alpha_rad, -beta_rad) |>
-  write.table(file = "lab7/sinusy.txt",
+  write.table(file = "sinusy.txt",
               col.names = c("Lp", "alfa", "beta", "sina", "usina", "sinb", "usinb"),
               quote = FALSE, dec = ",", sep = "\t", row.names = FALSE,
               na = "")
@@ -64,8 +64,8 @@ df_zal_proc |>
     panel.background = element_blank(),
     panel.grid = element_line(colour = "black", size = 0.15)
   )  
-ggsave("lab7/Snellius.pdf", device = cairo_pdf,
-       width = 10, height = 6)
+# ggsave("lab7/Snellius.pdf", device = cairo_pdf,
+#        width = 10, height = 6)
 
 linreg_and_uncertainty(df_zal_proc$sin_beta, df_zal_proc$sin_alpha)
 
@@ -97,7 +97,7 @@ tibble(alpha_gr = 42.5) |>
   select(-alpha_rad)
 
 
-df_pol <- read.csv2("lab7/polaryzacja.csv")
+df_pol <- read.csv2("polaryzacja.csv")
 
 df_pol_proc <- df_pol |>
   mutate(
@@ -117,12 +117,12 @@ df_pol_proc <- df_pol |>
     u_µA = round_uncertainty(u_µA, u_µA)
   )
 
-df_pol_proc |>
-  select(lp, theta, cos4, u_cos4, µA, range, u_µA) |>
-  write.table(file = "lab7/malus.txt",
-              col.names = c("Lp", "theta", "cos4", "u(cos4)", "I", "zakres", "u(I)"),
-              quote = FALSE, dec = ",", sep = "\t", row.names = FALSE,
-              na = "")
+# df_pol_proc |>
+#   select(lp, theta, cos4, u_cos4, µA, range, u_µA) |>
+#   write.table(file = "malus.txt",
+#               col.names = c("Lp", "theta", "cos4", "u(cos4)", "I", "zakres", "u(I)"),
+#               quote = FALSE, dec = ",", sep = "\t", row.names = FALSE,
+#               na = "")
 
 df_pol_proc |>
   ggplot(aes(x = cos4, y = µA)) +
@@ -132,16 +132,19 @@ df_pol_proc |>
   geom_smooth(method = "lm", se = FALSE, colour = "black"
               , formula = "y ~ 0 + x"
               ) +
+  labs(x = TeX("$\\cos^4(\\Delta \\theta)$"),
+       y = TeX("$I$ $[\\mu A]$")) +
   theme(
     panel.background = element_blank(),
     panel.grid = element_line(colour = "black", size = 0.15)
   )  
-ggsave("lab7/malus.pdf", device = cairo_pdf,
+ggsave("malus.pdf", device = cairo_pdf,
        width = 10, height = 6)
 
 # linreg_and_uncertainty(df_pol_proc$cos4, df_pol_proc$µA)
 {
 reg <- lm(df_pol_proc$µA ~ 0 + df_pol_proc$cos4)
+summary(reg)
 cf <- reg$coefficients
 u_cf <- sqrt(diag(vcov(reg)))
 cat("coefficient:", round_uncertainty(cf, u_cf), "\n")
